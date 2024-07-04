@@ -1,0 +1,61 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Capture Form</title>
+  </head>
+  <body>
+    <form action="/submit" method="post" enctype="multipart/form-data">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required /><br /><br />
+
+      <label for="image">Image:</label>
+      <video id="video" width="320" height="240" autoplay></video>
+      <canvas
+        id="canvas"
+        width="320"
+        height="240"
+        style="display: none"
+      ></canvas>
+      <button type="button" id="capture">Capture Image</button><br /><br />
+      <input type="hidden" id="image_data" name="image_data" required />
+
+      <label for="location">Location:</label>
+      <input type="text" id="location" name="location" readonly required />
+      <button type="button" id="getLocation">Get Location</button><br /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <script>
+      // Get current location on button click
+      document
+        .getElementById("getLocation")
+        .addEventListener("click", function () {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
+            document.getElementById("location").value = lat + "," + long;
+          });
+        });
+
+      // Access user's camera and capture image
+      var video = document.getElementById("video");
+      var canvas = document.getElementById("canvas");
+      var captureButton = document.getElementById("capture");
+
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then(function (stream) {
+          video.srcObject = stream;
+        });
+
+      captureButton.addEventListener("click", function () {
+        var context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, 320, 240);
+        var imageData = canvas.toDataURL("image/png");
+        document.getElementById("image_data").value = imageData;
+      });
+    </script>
+  </body>
+</html>
